@@ -129,14 +129,14 @@ impl FromStr for Passport {
 
 pub fn day4_part1() -> Result<String> {
     let passports = parse_file()?;
-    let count = passports.iter().filter(|p| p.is_valid_part1()).count();
-    Ok(format!("{}/{} passports are valid", count, passports.len()))
+    let valid = passports.iter().filter(|p| p.is_valid_part1()).count();
+    Ok(format!("{}/{} passports are valid", valid, passports.len()))
 }
 
 pub fn day4_part2() -> Result<String> {
     let passports = parse_file()?;
-    let count = passports.iter().filter(|p| p.is_valid_part2()).count();
-    Ok(format!("{}/{} passports are valid", count, passports.len()))
+    let valid = passports.iter().filter(|p| p.is_valid_part2()).count();
+    Ok(format!("{}/{} passports are valid", valid, passports.len()))
 }
 
 fn parse_file() -> Result<Vec<Passport>> {
