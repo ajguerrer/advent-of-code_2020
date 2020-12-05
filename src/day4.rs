@@ -107,7 +107,7 @@ impl FromStr for Passport {
         for f in s.split(&['\n', ' '][..]) {
             let (k, v) = f.split_at(
                 f.find(':')
-                    .ok_or_else(|| anyhow!("could not key/value pair"))?,
+                    .ok_or_else(|| anyhow!("could not find key/value pair"))?,
             );
             let v = &v[1..];
             match k {
@@ -130,13 +130,13 @@ impl FromStr for Passport {
 pub fn day4_part1() -> Result<String> {
     let passports = parse_file()?;
     let count = passports.iter().filter(|p| p.is_valid_part1()).count();
-    Ok(format!("{}/{} passports valid", count, passports.len()))
+    Ok(format!("{}/{} passports are valid", count, passports.len()))
 }
 
 pub fn day4_part2() -> Result<String> {
     let passports = parse_file()?;
     let count = passports.iter().filter(|p| p.is_valid_part2()).count();
-    Ok(format!("{}/{} passports valid", count, passports.len()))
+    Ok(format!("{}/{} passports are valid", count, passports.len()))
 }
 
 fn parse_file() -> Result<Vec<Passport>> {
