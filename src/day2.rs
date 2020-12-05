@@ -21,7 +21,7 @@ impl FromStr for Password {
                 .ok_or_else(|| anyhow!("could not find letter"))?,
         );
         let password = &s[2..];
-        
+
         Ok(Password {
             lower: lower.parse()?,
             upper: upper.parse()?,
