@@ -9,10 +9,9 @@ pub fn day5_part1() -> Result<String> {
 
 pub fn day5_part2() -> Result<String> {
     let passes = parse_file()?;
-    let front_seats = (1..(2usize.pow(8) * 8 - 1))
-        .find(|p| passes.contains(p))
-        .unwrap_or_default();
-    let next_open_seat = (front_seats..(2usize.pow(8) * 8 - 1))
+    let max = passes.iter().max().unwrap();
+    let front_seats = (1..*max).find(|p| passes.contains(p)).unwrap_or_default();
+    let next_open_seat = (front_seats..*max)
         .find(|p| !passes.contains(p))
         .unwrap_or_default();
 
