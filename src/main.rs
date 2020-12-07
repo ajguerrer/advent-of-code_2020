@@ -4,6 +4,7 @@ pub mod day3;
 pub mod day4;
 pub mod day5;
 pub mod day6;
+pub mod day7;
 
 use anyhow::Result;
 
@@ -20,6 +21,8 @@ fn main() -> Result<()> {
     println!("day 5, part 2: {}", day5::day5_part2()?);
     println!("day 6, part 1: {}", day6::day6_part1()?);
     println!("day 6, part 2: {}", day6::day6_part2()?);
+    println!("day 7, part 1: {}", day7::day7_part1()?);
+    println!("day 7, part 2: {}", day7::day7_part2()?);
 
     Ok(())
 }
