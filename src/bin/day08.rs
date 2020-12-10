@@ -1,13 +1,12 @@
 #![feature(str_split_once)]
-#![feature(iter_advance_by)]
 
 use std::fs::read_to_string;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum Instr {
-    Acc(i32),
-    Jmp(i32),
-    Nop(i32),
+    Acc,
+    Jmp,
+    Nop,
 }
 
 fn main() {
@@ -15,86 +14,67 @@ fn main() {
     println!("{}", part2());
 }
 
-fn part1() -> i64 {
-    let mut instrs = parse_file();
-    run(&mut instrs).1
+fn part1() -> i32 {
+    let instrs = parse_file();
+    run(&instrs).1
 }
 
-fn part2() -> i64 {
+fn part2() -> i32 {
     let instrs = parse_file();
     for i in 0..instrs.len() {
-        match instrs[i].0 {
-            Instr::Jmp(num) => {
-                let mut instrs = instrs.clone();
-                instrs[i].0 = Instr::Nop(num);
-                let (ok, val) = run(&mut instrs);
-                if ok {
-                    return val;
-                }
-            }
-            Instr::Nop(num) => {
-                let mut instrs = instrs.clone();
-                instrs[i].0 = Instr::Jmp(num);
-                let (ok, val) = run(&mut instrs);
-                if ok {
-                    return val;
-                }
-            }
+        let mut instrs = instrs.clone();
+        match instrs[i] {
+            (Instr::Jmp, num) => instrs[i] = (Instr::Nop, num),
+            (Instr::Nop, num) => instrs[i] = (Instr::Jmp, num),
             _ => {}
         }
+        let (ok, val) = run(&instrs);
+        if ok {
+            return val;
+        }
     }
-    0
+    panic!("no solution found")
 }
 
-fn run(instrs: &mut [(Instr, bool)]) -> (bool, i64) {
-    let len = instrs.len();
+fn run(instrs: &[(Instr, i32)]) -> (bool, i32) {
+    let mut visited = vec![false; instrs.len()];
     let mut acc = 0;
-    let mut i = 0;
-    loop {
-        let (instr, visited) = &mut instrs[i];
+    let mut pc = 0;
 
-        if *visited {
+    loop {
+        if pc == instrs.len() {
+            return (true, acc);
+        } else if visited[pc] {
             return (false, acc);
         }
-
+        let mut incr = 1;
+        let (instr, num) = instrs[pc];
         match instr {
-            Instr::Acc(num) => acc += *num as i64,
-            Instr::Jmp(num) => {
-                if *num > 0 {
-                    i += *num as usize - 1
-                } else if (num.abs() as usize) < i {
-                    i -= num.abs() as usize + 1
-                } else {
-                    i += len - num.abs() as usize
-                }
-            }
-            Instr::Nop(_) => {}
-        }
-
-        *visited = true;
-        if i + 1 == len {
-            return (true, acc);
-        }
-
-        i = (i + 1) % len;
+            Instr::Acc => acc += num,
+            Instr::Jmp => incr = num,
+            Instr::Nop => {}
+        };
+        visited[pc] = true;
+        pc = (pc as i32 + incr) as usize;
     }
 }
 
-fn to_instr(s: &str) -> Instr {
-    let (inst, num) = s.split_once(' ').unwrap();
-    let num = num.trim_start_matches('+');
-    match inst {
-        "acc" => Instr::Acc(num.parse::<i32>().unwrap()),
-        "jmp" => Instr::Jmp(num.parse::<i32>().unwrap()),
-        "nop" => Instr::Nop(num.parse::<i32>().unwrap()),
+fn to_instr(s: &str) -> (Instr, i32) {
+    let (instr, num) = s.split_once(' ').unwrap();
+    let num = num.trim_start_matches('+').parse::<i32>().unwrap();
+    let instr = match instr {
+        "acc" => Instr::Acc,
+        "jmp" => Instr::Jmp,
+        "nop" => Instr::Nop,
         _ => panic!("bad inst"),
-    }
+    };
+    (instr, num)
 }
 
-fn parse_file() -> Vec<(Instr, bool)> {
+fn parse_file() -> Vec<(Instr, i32)> {
     read_to_string("data/day08.txt")
         .unwrap()
         .lines()
-        .map(|line| (to_instr(line), false))
+        .map(|line| to_instr(line))
         .collect()
 }
