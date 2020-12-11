@@ -25,7 +25,7 @@ fn part2() -> usize {
     adapters.push(0);
     adapters.sort_unstable();
     let mut running_total = vec![1; adapters.len()];
-    for i in 1..adapters.len() {
+    for i in 2..adapters.len() {
         running_total[i] = (i.saturating_sub(3)..i)
             .filter(|j| adapters[i] - adapters[*j] <= 3)
             .map(|j| running_total[j])
