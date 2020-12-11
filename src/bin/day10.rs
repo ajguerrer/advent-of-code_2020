@@ -8,14 +8,14 @@ fn main() {
 fn part1() -> usize {
     let mut adapters = parse_file();
     adapters.sort_unstable();
-    count_joltage(&adapters, 1) * count_joltage(&adapters, 3)
+    count_adapters(&adapters, 1) * count_adapters(&adapters, 3)
 }
 
-fn count_joltage(adapters: &[u32], diff: u32) -> usize {
+fn count_adapters(adapters: &[u32], joltage: u32) -> usize {
     adapters
         .iter()
         .zip(adapters.iter().skip(1))
-        .filter(|(a1, a2)| *a2 - *a1 == diff)
+        .filter(|(a1, a2)| *a2 - *a1 == joltage)
         .count()
         + 1
 }
