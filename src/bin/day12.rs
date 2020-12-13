@@ -151,6 +151,7 @@ impl SubAssign<i64> for Direction {
         }
     }
 }
+
 enum Action {
     North,
     South,

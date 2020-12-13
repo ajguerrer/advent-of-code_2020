@@ -51,6 +51,7 @@ enum Seat {
     Empty,
     Floor,
 }
+
 #[derive(Debug)]
 struct Ferry(Vec<Vec<Seat>>);
 
