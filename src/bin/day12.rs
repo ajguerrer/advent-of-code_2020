@@ -87,7 +87,6 @@ impl Ship {
     }
 
     fn manhatten(&self) -> i64 {
-        println!("{} {}", self.x, self.y);
         self.x.abs() + self.y.abs()
     }
 }
