@@ -25,14 +25,14 @@ fn part2() -> usize {
 
 fn run(ferry: &Ferry, threshold: usize, range: i32) -> Option<Ferry> {
     let occupants = ferry.occupancy();
-    let new_layout = (0..ferry.0.len())
+    let new_layout = (0..ferry.height)
         .map(|y| {
-            (0..ferry.0[0].len())
+            (0..ferry.width)
                 .map(|x| ferry.new_seat(x, y, threshold, range))
                 .collect()
         })
         .collect();
-    let new_ferry = Ferry(new_layout);
+    let new_ferry = Ferry::new(new_layout);
     if new_ferry.occupancy() != occupants {
         Some(new_ferry)
     } else {
@@ -53,11 +53,25 @@ enum Seat {
 }
 
 #[derive(Debug)]
-struct Ferry(Vec<Vec<Seat>>);
+struct Ferry {
+    layout: Vec<Vec<Seat>>,
+    width: usize,
+    height: usize,
+}
 
 impl Ferry {
+    fn new(layout: Vec<Vec<Seat>>) -> Self {
+        let height = layout.len();
+        let width = layout[0].len();
+        Ferry {
+            layout,
+            height,
+            width,
+        }
+    }
+
     fn occupancy(&self) -> usize {
-        self.0
+        self.layout
             .iter()
             .flatten()
             .filter(|seat| seat == &&Seat::Occupied)
@@ -70,9 +84,9 @@ impl Ferry {
             .filter(|(dx, dy)| {
                 (1..=range)
                     .map_while(|mul| {
-                        self.0
-                            .get((dy * mul + y as i32) as usize)
-                            .and_then(|row| row.get((dx * mul + x as i32) as usize))
+                        let x = (dx * mul + x as i32) as usize;
+                        let y = (dy * mul + y as i32) as usize;
+                        self.layout.get(y).and_then(|row| row.get(x))
                     })
                     .find(|seat| seat == &&Seat::Occupied || seat == &&Seat::Empty)
                     == Some(&Seat::Occupied)
@@ -81,7 +95,7 @@ impl Ferry {
     }
 
     fn new_seat(&self, x: usize, y: usize, threshold: usize, range: i32) -> Seat {
-        match self.0[y][x] {
+        match self.layout[y][x] {
             Seat::Empty if self.adjacent(x, y, range) == 0 => Seat::Occupied,
             Seat::Occupied if self.adjacent(x, y, range) >= threshold => Seat::Empty,
             seat => seat,
@@ -103,5 +117,5 @@ fn parse_file() -> Ferry {
         .lines()
         .map(|row| row.chars().map(parse_seat).collect())
         .collect();
-    Ferry(layout)
+    Ferry::new(layout)
 }
