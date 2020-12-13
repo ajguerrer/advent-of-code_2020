@@ -24,7 +24,6 @@ fn part2() -> usize {
 }
 
 fn run(ferry: &Ferry, threshold: usize, range: i32) -> Option<Ferry> {
-    let occupants = ferry.occupancy();
     let new_layout = (0..ferry.height)
         .map(|y| {
             (0..ferry.width)
@@ -33,7 +32,7 @@ fn run(ferry: &Ferry, threshold: usize, range: i32) -> Option<Ferry> {
         })
         .collect();
     let new_ferry = Ferry::new(new_layout);
-    if new_ferry.occupancy() != occupants {
+    if new_ferry.occupancy() != ferry.occupancy() {
         Some(new_ferry)
     } else {
         None
