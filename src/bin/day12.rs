@@ -71,13 +71,13 @@ impl Ship {
                 180 => self.way.one_eighty(),
                 90 => self.way.counter_ninety(),
                 270 => self.way.clock_ninety(),
-                d => panic!("cant rotate left by {}", d),
+                d => panic!("weird rotation: left by {}?", d),
             },
             (Action::Right, d) => match d {
                 180 => self.way.one_eighty(),
                 90 => self.way.clock_ninety(),
                 270 => self.way.counter_ninety(),
-                d => panic!("cant rotate right by {}", d),
+                d => panic!("weird rotation: right by {}?", d),
             },
             (Action::Forward, d) => {
                 self.x += self.way.x * d;
@@ -131,7 +131,7 @@ impl From<i64> for Direction {
             90 => Direction::East,
             180 => Direction::South,
             270 => Direction::West,
-            _ => panic!("invalid direction {}", i),
+            _ => panic!("weird direction: {}?", i),
         }
     }
 }
@@ -171,7 +171,7 @@ fn parse_line(s: &str) -> (Action, i64) {
         "L" => Action::Left,
         "R" => Action::Right,
         "F" => Action::Forward,
-        a => panic!("what is this action: {}", a),
+        a => panic!("weird action: {}?", a),
     };
     (action, dist.parse().unwrap())
 }
