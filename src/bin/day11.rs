@@ -45,12 +45,22 @@ const ADJACENT: &[(i32, i32)] = &[(-1, -1), (-1, 0), (-1, 1),
                                    (0, -1),           (0, 1), 
                                    (1, -1),  (1, 0),  (1, 1)];
 
+#[derive(Debug, PartialEq, Copy, Clone)]
+enum Seat {
+    Occupied,
+    Empty,
+    Floor,
+}
 #[derive(Debug)]
-struct Ferry(Vec<Vec<char>>);
+struct Ferry(Vec<Vec<Seat>>);
 
 impl Ferry {
     fn occupancy(&self) -> usize {
-        self.0.iter().flatten().filter(|seat| seat == &&'#').count()
+        self.0
+            .iter()
+            .flatten()
+            .filter(|seat| seat == &&Seat::Occupied)
+            .count()
     }
 
     fn adjacent(&self, x: usize, y: usize, range: i32) -> usize {
@@ -63,18 +73,26 @@ impl Ferry {
                             .get((dy * mul + y as i32) as usize)
                             .and_then(|row| row.get((dx * mul + x as i32) as usize))
                     })
-                    .find(|seat| seat == &&'#' || seat == &&'L')
-                    == Some(&'#')
+                    .find(|seat| seat == &&Seat::Occupied || seat == &&Seat::Empty)
+                    == Some(&Seat::Occupied)
             })
             .count()
     }
 
-    fn new_seat(&self, x: usize, y: usize, threshold: usize, range: i32) -> char {
+    fn new_seat(&self, x: usize, y: usize, threshold: usize, range: i32) -> Seat {
         match self.0[y][x] {
-            'L' if self.adjacent(x, y, range) == 0 => '#',
-            '#' if self.adjacent(x, y, range) >= threshold => 'L',
+            Seat::Empty if self.adjacent(x, y, range) == 0 => Seat::Occupied,
+            Seat::Occupied if self.adjacent(x, y, range) >= threshold => Seat::Empty,
             seat => seat,
         }
+    }
+}
+
+fn parse_seat(c: char) -> Seat {
+    match c {
+        'L' => Seat::Empty,
+        '.' => Seat::Floor,
+        c => panic!("what is this seat: {}?", c),
     }
 }
 
@@ -82,7 +100,7 @@ fn parse_file() -> Ferry {
     let layout = read_to_string("data/day11.txt")
         .unwrap()
         .lines()
-        .map(|row| row.chars().collect())
+        .map(|row| row.chars().map(parse_seat).collect())
         .collect();
     Ferry(layout)
 }
