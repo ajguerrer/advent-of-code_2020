@@ -3,7 +3,7 @@
 use std::fs::read_to_string;
 
 fn main() {
-    // println!("{}", part1());
+    println!("{}", part1());
     println!("{}", part2());
 }
 
@@ -26,20 +26,18 @@ fn part1() -> u32 {
 
 fn part2() -> usize {
     let (_, sched) = parse_file();
-    let max = sched.iter().max().unwrap().unwrap();
-    let i = sched.iter().position(|b| b == &Some(max)).unwrap();
-    (max as usize - i..)
-        .step_by(max as usize)
-        .find(|mul| is_wave(*mul, &sched))
-        .unwrap()
-}
-
-fn is_wave(mul: usize, sched: &[Option<u32>]) -> bool {
-    dbg!(mul);
-    sched.iter().enumerate().all(|(i, b)| match b {
-        Some(b) => (mul + i) % *b as usize == 0,
-        None => true,
-    })
+    let (solution, _) = sched
+        .iter()
+        .enumerate()
+        .filter_map(|(stagger_by, bus)| bus.map(|bus| (stagger_by, bus as usize)))
+        .fold((0, 1), |(acc, running_period), (stagger_by, bus)| {
+            let mut acc = acc;
+            while (acc + stagger_by) % bus != 0 {
+                acc += running_period;
+            }
+            (acc, running_period * bus)
+        });
+    solution
 }
 
 fn parse_file() -> (u32, Vec<Option<u32>>) {
