@@ -44,8 +44,8 @@ type Dir = (i32, i32);
 
 #[rustfmt::skip]
 const ADJACENT: &[Dir] = &[(-1, -1), (-1, 0), (-1, 1), 
-                                   (0, -1),           (0, 1), 
-                                   (1, -1),  (1, 0),  (1, 1)];
+                           ( 0, -1),          ( 0, 1), 
+                           ( 1, -1), ( 1, 0), ( 1, 1)];
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum Seat {
