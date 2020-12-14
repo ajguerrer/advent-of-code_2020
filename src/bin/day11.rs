@@ -27,7 +27,7 @@ fn run(ferry: &Ferry, threshold: usize, range: i32) -> Option<Ferry> {
     let new_layout = (0..ferry.height)
         .map(|y| {
             (0..ferry.width)
-                .map(|x| ferry.new_seat(x, y, threshold, range))
+                .map(|x| ferry.new_seat((x, y), threshold, range))
                 .collect()
         })
         .collect();
@@ -39,8 +39,11 @@ fn run(ferry: &Ferry, threshold: usize, range: i32) -> Option<Ferry> {
     }
 }
 
+type Pos = (usize, usize);
+type Dir = (i32, i32);
+
 #[rustfmt::skip]
-const ADJACENT: &[(i32, i32)] = &[(-1, -1), (-1, 0), (-1, 1), 
+const ADJACENT: &[Dir] = &[(-1, -1), (-1, 0), (-1, 1), 
                                    (0, -1),           (0, 1), 
                                    (1, -1),  (1, 0),  (1, 1)];
 
@@ -77,26 +80,28 @@ impl Ferry {
             .count()
     }
 
-    fn adjacent(&self, x: usize, y: usize, range: i32) -> usize {
+    fn adjacent(&self, pos: Pos, range: i32) -> usize {
         ADJACENT
             .iter()
-            .filter(|(dx, dy)| {
-                (1..=range)
-                    .map_while(|mul| {
-                        let x = (dx * mul + x as i32) as usize;
-                        let y = (dy * mul + y as i32) as usize;
-                        self.layout.get(y).and_then(|row| row.get(x))
-                    })
-                    .find(|seat| seat == &&Seat::Occupied || seat == &&Seat::Empty)
-                    == Some(&Seat::Occupied)
-            })
+            .filter(|dir| self.find_occupied(pos, **dir, range))
             .count()
     }
 
-    fn new_seat(&self, x: usize, y: usize, threshold: usize, range: i32) -> Seat {
+    fn find_occupied(&self, (x, y): Pos, (dx, dy): Dir, range: i32) -> bool {
+        (1..=range)
+            .map_while(|i| {
+                let x = (dx * i + x as i32) as usize;
+                let y = (dy * i + y as i32) as usize;
+                self.layout.get(y).and_then(|row| row.get(x))
+            })
+            .find(|seat| seat == &&Seat::Occupied || seat == &&Seat::Empty)
+            == Some(&Seat::Occupied)
+    }
+
+    fn new_seat(&self, (x, y): Pos, threshold: usize, range: i32) -> Seat {
         match self.layout[y][x] {
-            Seat::Empty if self.adjacent(x, y, range) == 0 => Seat::Occupied,
-            Seat::Occupied if self.adjacent(x, y, range) >= threshold => Seat::Empty,
+            Seat::Empty if self.adjacent((x, y), range) == 0 => Seat::Occupied,
+            Seat::Occupied if self.adjacent((x, y), range) >= threshold => Seat::Empty,
             seat => seat,
         }
     }
