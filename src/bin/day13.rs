@@ -29,13 +29,13 @@ fn part2() -> usize {
     let (solution, _) = sched
         .iter()
         .enumerate()
-        .filter_map(|(stagger_by, bus)| bus.map(|bus| (stagger_by, bus as usize)))
-        .fold((0, 1), |(acc, running_period), (stagger_by, bus)| {
-            let mut acc = acc;
-            while (acc + stagger_by) % bus != 0 {
-                acc += running_period;
-            }
-            (acc, running_period * bus)
+        .filter_map(|(i, bus)| bus.map(|bus| (i, bus as usize)))
+        .fold((0, 1), |(acc, period), (i, bus)| {
+            let acc = (acc..)
+                .step_by(period)
+                .find(|acc| (acc + i) % bus == 0)
+                .unwrap();
+            (acc, period * bus)
         });
     solution
 }
