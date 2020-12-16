@@ -1,5 +1,3 @@
-#![feature(str_split_once)]
-
 use std::{collections::HashMap, fs::read_to_string};
 
 fn main() {
