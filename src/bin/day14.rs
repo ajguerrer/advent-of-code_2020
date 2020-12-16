@@ -9,16 +9,15 @@ fn main() {
 
 fn part1() -> usize {
     let program = parse_file();
-    let mut map = HashMap::new();
-    let mut mask = String::new();
-    for data in program {
-        match data {
-            Data::Mask(m) => mask = m,
+    let (map, _) = program
+        .iter()
+        .fold((HashMap::new(), ""), |(mut map, mask), data| match data {
+            Data::Mask(m) => (map, m),
             Data::Value(addr, val) => {
-                map.insert(addr, apply_mask(val, &mask));
+                map.insert(addr, apply_mask(*val, mask));
+                (map, mask)
             }
-        };
-    }
+        });
     map.values().map(|k| *k as usize).sum()
 }
 
@@ -36,28 +35,28 @@ fn apply_mask(val: u64, mask: &str) -> u64 {
 
 fn part2() -> usize {
     let program = parse_file();
-    let mut map = HashMap::new();
-    let mut mask = String::new();
-    for data in program {
-        match data {
-            Data::Mask(m) => mask = m,
+    let (map, _) = program
+        .iter()
+        .fold((HashMap::new(), ""), |(mut map, mask), data| match data {
+            Data::Mask(m) => (map, m),
             Data::Value(addr, val) => {
-                for addr in get_addrs(&floating_addr(addr, &mask)) {
-                    map.insert(addr, val);
+                for addr in get_addrs(&floating_addr(*addr, mask)) {
+                    map.insert(addr, *val);
                 }
+                (map, mask)
             }
-        };
-    }
+        });
     map.values().map(|k| *k as usize).sum()
 }
 
 fn floating_addr(addr: u64, mask: &str) -> String {
     mask.chars()
+        .rev()
         .enumerate()
         .fold(String::new(), |acc, (i, mask)| match mask {
-            '1' => acc + "1",
-            '0' => acc + &((addr >> (35 - i)) & 1).to_string(),
-            'X' => acc + "X",
+            '1' => ["1", &acc].concat(),
+            '0' => [((addr >> i) & 1).to_string(), acc].concat(),
+            'X' => ["X", &acc].concat(),
             mask => panic!("weird mask {}", mask),
         })
 }
@@ -70,20 +69,10 @@ fn get_addrs(mask: &str) -> Vec<u64> {
         ]
         .concat()
     } else {
-        vec![mask_to_addr(mask)]
+        vec![u64::from_str_radix(mask, 2).unwrap()]
     }
 }
 
-fn mask_to_addr(mask: &str) -> u64 {
-    mask.chars()
-        .rev()
-        .enumerate()
-        .fold(0, |acc, (i, mask)| match mask {
-            '1' => acc + (1 << i),
-            '0' => acc,
-            mask => panic!("weird mask {}", mask),
-        })
-}
 #[derive(Debug, PartialEq)]
 enum Data {
     Mask(String),
