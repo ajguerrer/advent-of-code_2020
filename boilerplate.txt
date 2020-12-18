@@ -1,0 +1,24 @@
+use std::fs::read_to_string;
+
+fn main() {
+    println!("{}", part1());
+    println!("{}", part2());
+}
+
+fn part1() -> usize {
+    let  = parse_file();
+    0
+}
+
+fn part2() -> usize {
+    let  = parse_file();
+    0
+}
+
+fn parse_file() -> Vec<> {
+    read_to_string("data/day.txt")
+        .unwrap()
+        .lines()
+        .map(|line| line.parse().unwrap())
+        .collect()
+}
