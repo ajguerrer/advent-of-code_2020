@@ -1,6 +1,6 @@
 #![feature(min_const_generics)]
 
-use std::{collections::HashSet, convert::TryFrom, fs::read_to_string};
+use std::{collections::HashSet, fs::read_to_string};
 
 fn main() {
     println!("{}", part1());
@@ -24,32 +24,31 @@ fn part2() -> usize {
 }
 
 fn cycle<const D: usize>(cube: &HashSet<Coord<D>>) -> HashSet<Coord<D>> {
-    let adj = cube
+    let next = cube
         .iter()
-        .flat_map(|c| adjacent(c))
+        .flat_map(|c| adjacent(*c))
         .collect::<HashSet<_>>();
-    adj
-        .iter()
+    next.iter()
+        .copied()
         .filter(|n| {
-            let active = cube.contains(*n);
-            let adjacent = cube.intersection(&adjacent(n)).count();
-            matches!((active, adjacent), (false, 3) | (true, 3) | (true, 4))
+            let active = cube.contains(n);
+            let adj = adjacent(*n)
+                .filter(|a| a != n)
+                .filter(|a| cube.contains(a))
+                .count();
+            matches!((active, adj), (false, 3) | (true, 2) | (true, 3))
         })
-        .cloned()
         .collect()
 }
 
-fn adjacent<const D: usize>(coord: &Coord<D>) -> HashSet<Coord<D>> {
-    (0..3usize.pow(D as u32))
-        .map(|i| {
-            Coord::try_from(
-                (0..D)
-                    .map(|c| coord[c] + (i / 3usize.pow(c as u32) % 3) as i32 - 1)
-                    .collect::<Vec<_>>(),
-            )
-            .unwrap()
-        })
-        .collect()
+fn adjacent<const D: usize>(coord: Coord<D>) -> impl Iterator<Item = Coord<D>> {
+    (0..3usize.pow(D as u32)).map(move |i| {
+        let mut adj = [0; D];
+        for (d, v) in adj.iter_mut().enumerate().take(D) {
+            *v = coord[d] + (i / 3usize.pow(d as u32) % 3) as i32 - 1;
+        }
+        adj
+    })
 }
 
 type Coord<const D: usize> = [i32; D];
