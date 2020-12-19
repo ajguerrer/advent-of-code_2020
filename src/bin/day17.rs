@@ -1,6 +1,6 @@
 #![feature(min_const_generics)]
 
-use std::{collections::HashSet, convert::TryInto, fs::read_to_string};
+use std::{collections::HashSet, convert::TryFrom, fs::read_to_string};
 
 fn main() {
     println!("{}", part1());
@@ -42,11 +42,12 @@ fn cycle<const D: usize>(cube: &HashSet<Coord<D>>) -> HashSet<Coord<D>> {
 fn adjacent<const D: usize>(coord: &Coord<D>) -> HashSet<Coord<D>> {
     (0..3usize.pow(D as u32))
         .map(|i| {
-            (0..D)
-                .map(|c| coord[c] + (i / 3usize.pow(c as u32) % 3) as i32 - 1)
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap()
+            Coord::try_from(
+                (0..D)
+                    .map(|c| coord[c] + (i / 3usize.pow(c as u32) % 3) as i32 - 1)
+                    .collect::<Vec<_>>(),
+            )
+            .unwrap()
         })
         .collect()
 }
