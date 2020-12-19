@@ -24,11 +24,11 @@ fn part2() -> usize {
 }
 
 fn cycle<const D: usize>(cube: &HashSet<Coord<D>>) -> HashSet<Coord<D>> {
-    let neigh = cube
+    let adj = cube
         .iter()
         .flat_map(|c| adjacent(c))
         .collect::<HashSet<_>>();
-    neigh
+    adj
         .iter()
         .filter(|n| {
             let active = cube.contains(*n);
