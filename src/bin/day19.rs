@@ -22,32 +22,32 @@ fn part2() -> usize {
 fn count_matches(rules: &Rules, messages: &[String]) -> usize {
     messages
         .iter()
-        .flat_map(|message| match_rule(message, 0, &rules))
+        .flat_map(|message| strip_rule(message, 0, &rules))
         .filter(|message| message.is_empty())
         .count()
 }
 
-fn match_rule<'a>(message: &'a str, rule: u32, rules: &Rules) -> Vec<&'a str> {
+fn strip_rule<'a>(message: &'a str, rule: u32, rules: &Rules) -> Vec<&'a str> {
     if message.is_empty() {
         return Vec::new();
     };
 
     match rules.get(&rule).unwrap() {
         Rule::Value(c) => message.strip_prefix(*c).map_or(Vec::new(), |m| vec![m]),
-        Rule::Sequence(s) => match_sequence(message, s, rules),
+        Rule::Sequence(s) => strip_sequence(message, s, rules),
         Rule::Either((l, r)) => [
-            match_sequence(message, l, rules),
-            match_sequence(message, r, rules),
+            strip_sequence(message, l, rules),
+            strip_sequence(message, r, rules),
         ]
         .concat(),
     }
 }
 
-fn match_sequence<'a>(message: &'a str, seq: &[u32], rules: &Rules) -> Vec<&'a str> {
+fn strip_sequence<'a>(message: &'a str, seq: &[u32], rules: &Rules) -> Vec<&'a str> {
     seq.iter().fold(vec![message], |messages, rule| {
         messages
             .iter()
-            .flat_map(|message| match_rule(message, *rule, rules))
+            .flat_map(|message| strip_rule(message, *rule, rules))
             .collect()
     })
 }
